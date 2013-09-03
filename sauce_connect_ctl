@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# This script will manage (start/stop/status) the SauceConnect
+# java app which allows for secure proxy connections to
+# SauceLabs.
+# Two env variables are required:
+#    SAUCELABS_USER
+#    SAUCELABS_APIKEY
+# If the file $HOME/.saucelabsrc exists, it will be sourced.
+
+
+rcfile=$HOME/.saucelabsrc
+if [ -f $rcfile ]; then
+    . $rcfile
+fi
+
+# check required env vars
+if [ -z "$SAUCELABS_USER" ]; then
+    echo "Missing env var SAUCELABS_USER!"
+    exit 1
+fi
+if [ -z "$SAUCELABS_APIKEY" ]; then
+    echo "Missing env var SAUCELABS_APIKEY!"
+    exit 1
+fi
+
+
+action=$1
+
+case $action in
+    start)
+	nohup java -jar Sauce-Connect.jar $SAUCELABS_USER $SAUCELABS_APIKEY >sauce_connect.out.log 2>sauce_connect.error.log < /dev/null &
+	s=$?
+	echo -n "Started "
+	if [ $s -gt 0 ]; then
+	    echo '[FAILED]'
+	else
+	    echo '[OK]'
+	fi
+	exit $s
+	;;
+    stop)
+	pkill -f "Sauce-Connect.jar"
+	s=$?
+	echo -n "Stopped "
+	if [ $s -gt 0 ]; then
+	    echo '[FAILED]'
+	else
+	    echo '[OK]'
+	fi
+	exit $s
+	;;
+    status)
+	running=`ps uwwxf | grep 'S[a]uce-Connect.jar' | awk '{ print $2 }'`
+	if [ -n "$running" ]; then
+	    echo "Found running pid $running"
+	    exit 0
+	else
+	    echo "Not running"
+	    exit 1
+	fi
+	;;
+    *)
+	echo "Usage $0 (start|stop|status)"
+	;;
+esac
+
+exit 1
+
