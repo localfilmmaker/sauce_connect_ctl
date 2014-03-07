@@ -1,8 +1,7 @@
 #!/bin/sh
 
-# This script will manage (start/stop/status) the SauceConnect
-# java app which allows for secure proxy connections to
-# SauceLabs.
+# This script will manage (start/stop/status) the Sauce Connect 3
+# java app which allows for secure proxy connections to SauceLabs.
 # Two env variables are required:
 #    SAUCELABS_USER
 #    SAUCELABS_APIKEY
